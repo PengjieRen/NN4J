@@ -25,6 +25,16 @@ public class Dense extends Vertex{
 		this.bias=bias;
 		this.training=training;
 	}
+	
+	public Dense(INDArray maskings,Expr in,Parameter W,Activation activation,boolean bias,boolean training) {
+		super(maskings);
+		this.in=in;
+		this.W=W;
+		this.activation=activation;
+		this.bias=bias;
+		this.training=training;
+	}
+	
 	@Override
 	public Expr function() {
 		INDArray biasValue=null;
@@ -35,7 +45,7 @@ public class Dense extends Vertex{
 		}
 		Parameter biasParam=new Parameter(biasValue, RegType.None, 0, false);
 
-		return new Activate(new OuterProduct(new Concat(in,biasParam),W), activation, training);
+		return new Activate(new OuterProduct(maskings,new Concat(in,biasParam),W), activation, training);
 	}
 	@Override
 	public int[] shape() {

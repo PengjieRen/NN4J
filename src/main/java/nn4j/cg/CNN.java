@@ -3,6 +3,9 @@ package nn4j.cg;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
+
 import nn4j.expr.Add;
 import nn4j.expr.Avg;
 import nn4j.expr.Concat;
@@ -25,29 +28,54 @@ public class CNN extends Vertex {
 		this.windowSize = widowSize;
 		this.poolingType = poolingType;
 	}
+	
+	public CNN(INDArray maskings,List<Expr> inputs, Parameter W, int widowSize, PoolingType poolingType) {
+		super(maskings);
+		this.units = inputs;
+		this.W = W;
+		this.windowSize = widowSize;
+		this.poolingType = poolingType;
+	}
 
 	@Override
 	public Expr function() {
 		List<Expr> pool = new ArrayList<Expr>();
+		List<INDArray> poolMaskings=null;
+		if(maskings!=null){
+			poolMaskings=new ArrayList<INDArray>();
+		}
 		for (int i = 0; i < units.size() - windowSize; i++) {
 			Expr[] concat = new Expr[windowSize];
+			INDArray thisMasking=null;
+			if(maskings!=null){
+				thisMasking=maskings.getColumn(i);
+			}
 			for (int j = i; j < i + windowSize; j++) {
 				concat[j - i] = units.get(j);
+				if(maskings!=null){
+					thisMasking=thisMasking.mul(maskings.getColumn(j));
+				}
 			}
-			pool.add(new OuterProduct(new Concat(concat), W));
+			
+			if(maskings!=null){
+				poolMaskings.add(thisMasking);
+			}
+			pool.add(new OuterProduct(thisMasking,new Concat(concat), W));
 		}
+		
+		INDArray masking=Nd4j.concat(1, poolMaskings.toArray(new INDArray[0]));
 
 		switch (poolingType) {
 		case Sum:
-			return new Add(pool.toArray(new Expr[0]));
+			return new Add(masking,pool.toArray(new Expr[0]));
 		case Avg:
-			return new Avg(pool.toArray(new Expr[0]));
+			return new Avg(masking,pool.toArray(new Expr[0]));
 		case Max:
-			return new Max(pool.toArray(new Expr[0]));
+			return new Max(masking,pool.toArray(new Expr[0]));
 		case Min:
-			return new Min(pool.toArray(new Expr[0]));
+			return new Min(masking,pool.toArray(new Expr[0]));
 		default:
-			return new Max(pool.toArray(new Expr[0]));
+			return new Max(masking,pool.toArray(new Expr[0]));
 		}
 	}
 

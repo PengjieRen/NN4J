@@ -1,6 +1,7 @@
 package nn4j.cg;
 
 import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.api.ndarray.INDArray;
 
 import nn4j.expr.Activate;
 import nn4j.expr.Add;
@@ -34,6 +35,19 @@ public class LSTMUnit extends Vertex{
 		this.in=in;
 		this.training=training;
 	}
+	
+	public LSTMUnit(INDArray maskings,Expr prev_h,Expr prev_c,Expr in,Parameter W_i, Parameter W_f, Parameter W_o, Parameter W_g,boolean training) {
+		super(maskings);
+        this.h=prev_h;
+		this.c=prev_c;
+		this.W_i=W_i;
+		this.W_f=W_f;
+		this.W_o=W_o;
+		this.W_g=W_g;
+		this.in=in;
+		this.training=training;
+	}
+	
 	@Override
 	public Expr function() {
 		Expr inConcat=new Concat(h,in);
@@ -42,7 +56,7 @@ public class LSTMUnit extends Vertex{
 		Expr o=new Dense(inConcat, W_o, Activation.SIGMOID, true, training);
 		Expr g=new Dense(inConcat, W_g, Activation.TANH, true, training);
 		c=new Add(new Mul(f,c),new Mul(i,g));
-		h=new Mul(o,new Activate(c, Activation.TANH, training));
+		h=new Mul(maskings,o,new Activate(c, Activation.TANH, training));
 		return h;
 	}
 

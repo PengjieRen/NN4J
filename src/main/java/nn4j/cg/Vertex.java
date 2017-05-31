@@ -7,6 +7,14 @@ import nn4j.expr.Expr;
 public abstract class Vertex extends Expr{
 
 	private Expr function;
+	
+	protected Vertex() {
+	}
+	
+	protected Vertex(INDArray maskings) {
+		super(maskings);
+	}
+	
 	@Override
 	public INDArray doForward() {
 		function=function();
