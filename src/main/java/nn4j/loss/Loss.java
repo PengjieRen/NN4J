@@ -14,8 +14,16 @@ public class Loss{
 	private Expr prediction;
 	private ILossFunction loss;
 	private INDArray output;
+	private INDArray masking;
+
 	public Loss(Expr prediction,LossFunction loss){
 		this.prediction=prediction;
+		this.loss=loss.getILossFunction();
+	}
+	
+	public Loss(INDArray masking,Expr prediction,LossFunction loss){
+		this.prediction=prediction;
+		this.masking=masking;
 		this.loss=loss.getILossFunction();
 	}
 	
@@ -23,11 +31,12 @@ public class Loss{
 		output= prediction.forward();
 		return output;
 	}
+	
 
 	public float backward(INDArray gt) {
 		IActivation activation=Activation.IDENTITY.getActivationFunction();
-		float score=(float)loss.computeScore(gt, output, activation, null, false);
-	    INDArray delta = loss.computeGradient(gt, output, activation, null);
+		float score=(float)loss.computeScore(gt, output, activation, masking, false);
+	    INDArray delta = loss.computeGradient(gt, output, activation, masking);
 	    prediction.backward(delta);
 	    return score;
 	}
