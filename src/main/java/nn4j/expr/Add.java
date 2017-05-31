@@ -10,11 +10,19 @@ public class Add extends Expr{
 		super(inputs);
 	}
 	
+	public Add(INDArray maskings,Expr... inputs) {
+		super(maskings,inputs);
+	}
+	
 	@Override
 	public INDArray doForward() {
 		INDArray[] temp=new INDArray[inputs.size()];
 		for(int i=0;i<inputs.size();i++){
 			temp[i]=inputs.get(i).forward();
+			if(maskings!=null)
+			{
+				temp[i].muliColumnVector(maskings.getColumn(i));
+			}
 		}
 		output=NDArrayCache.get(temp[0].shape());
 
@@ -28,7 +36,12 @@ public class Add extends Expr{
 	@Override
 	public void doBackward(INDArray epsilon) {
 		for(int i=0;i<inputs.size();i++){
-			inputs.get(i).backward(epsilon);
+			INDArray delta=epsilon;
+			if(maskings!=null)
+			{
+				delta=epsilon.mulColumnVector(maskings.getColumn(i));
+			}
+			inputs.get(i).backward(delta);
 		}
 	}
 

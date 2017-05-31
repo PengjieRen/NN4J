@@ -19,6 +19,13 @@ public class Activate extends Expr{
 		this.training=training;
 	}
 	
+	public Activate(INDArray maskings,Expr input,Activation activation,boolean training) {
+		super(maskings,input);
+		this.input=input;
+		this.activation = activation.getActivationFunction();
+		this.training=training;
+	}
+	
 	private INDArray preout;
 	@Override
 	public INDArray doForward() {
@@ -26,12 +33,18 @@ public class Activate extends Expr{
 		output=NDArrayCache.get(preout.shape());
 		output.assign(preout);
 		output=activation.getActivation(output, training);
+		if(maskings!=null){
+			output.muliColumnVector(maskings);
+		}
 		return output;
 	}
 
 	@Override
 	public void doBackward(INDArray epsilon) {
 		INDArray delta = activation.backprop(preout, epsilon).getFirst();
+		if(maskings!=null){
+			delta.muliColumnVector(maskings);
+		}
 		input.backward(delta);
 	}
 

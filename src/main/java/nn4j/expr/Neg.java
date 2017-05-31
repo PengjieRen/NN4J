@@ -9,15 +9,21 @@ public class Neg extends Expr{
 		super(input);
 		this.input=input;
 	}
+	
+	public Neg(INDArray maskings,Expr input){
+		super(maskings,input);
+		this.input=input;
+	}
+	
 	@Override
 	public INDArray doForward() {
-		output=input.forward().neg();
+		output=input.forward().neg().muliColumnVector(maskings);
 		return output;
 	}
 
 	@Override
 	public void doBackward(INDArray epsilon) {
-		input.backward(epsilon.neg());
+		input.backward(epsilon.neg().muliColumnVector(maskings));
 	}
 	@Override
 	public int[] shape() {

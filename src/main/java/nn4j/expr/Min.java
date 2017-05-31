@@ -15,12 +15,35 @@ public class Min extends Expr{
 		super(inputs);
 	}
 	
+	public Min(INDArray maskings,Expr... inputs){
+		super(maskings,inputs);
+	}
+	
 	@Override
 	public INDArray doForward() {
+		
+		INDArray minMaskings=null;
+		if(maskings!=null){
+			minMaskings=NDArrayCache.get(maskings.shape());
+			for (int i = 0; i < minMaskings.length(); i++) {
+				float v=maskings.getFloat(i);
+				if(v>0){
+					minMaskings.putScalar(i, 0);
+				}else
+				{
+					minMaskings.putScalar(i, Float.MAX_VALUE);
+				}
+			}
+		}
+		
 		List<INDArray> outputs = new ArrayList<INDArray>();
 
 		for (int i = 0; i < inputs.size(); i++) {
-			outputs.add(inputs.get(i).forward());
+			INDArray output_=inputs.get(i).forward();
+			if(maskings!=null){
+				output_=output_.mulColumnVector(maskings.getColumn(i)).addi(minMaskings);
+			}
+			outputs.add(output_);
 		}
 		int[] shape=outputs.get(0).shape();
 		INDArray temp=NDArrayCache.create(outputs, new int[]{outputs.size(),shape[0],shape[1]});
