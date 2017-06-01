@@ -47,7 +47,39 @@ public class ParameterManager {
 
 			if (iteration == 1)
 			{
-				paramUpdater.setStateViewArray(Nd4j.toFlattened('f', NDArrayCache.get(param.value().shape())), param.value().shape(), 'f', true);
+				int[] shape=param.value().shape();
+				int[] nshape=new int[2];
+				nshape[0]=shape[0];
+				
+				switch (updater) {
+				case SGD:
+					nshape[1]=shape[1];
+					break;
+				case ADAM:
+					nshape[1]=2*shape[1];
+					break;
+				case ADADELTA:
+					nshape[1]=2*shape[1];
+					break;
+				case NESTEROVS:
+					nshape[1]=shape[1];
+					break;
+				case ADAGRAD:
+					nshape[1]=shape[1];
+					break;
+				case RMSPROP:
+					nshape[1]=shape[1];
+					break;
+				case NONE:
+					nshape[1]=shape[1];
+					break;
+				case CUSTOM:
+					throw new UnsupportedOperationException("Custom updaters: not yet implemented");
+				default:
+					nshape[1]=shape[1];
+				}
+
+				paramUpdater.setStateViewArray(Nd4j.toFlattened('c', NDArrayCache.get(nshape)), shape, 'c', true);
 			}
 
 			for(INDArray gra : param.gradients())

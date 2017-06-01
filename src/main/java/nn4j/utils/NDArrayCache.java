@@ -15,7 +15,7 @@ public class NDArrayCache {
 	private static Map<String, Stack<INDArray>> cache = new HashMap<String, Stack<INDArray>>();
 	private static Set<INDArray> sets = new HashSet<INDArray>();
 	private static Object _lock = new Object();
-	private static int limit = 1000000;
+	private static int limit = 100000;
 
 	private static String toID(int... shape) {
 		StringBuffer sb = new StringBuffer();

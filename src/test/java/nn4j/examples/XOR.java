@@ -67,10 +67,10 @@ public class XOR extends ComputationGraph{
 		DataTypeUtil.setDTypeForContext(DataBuffer.Type.FLOAT);
 		
 		DataLoader loader=new XORDataLoader();
-		ParameterManager pm = new ParameterManager(Updater.RMSPROP);
+		ParameterManager pm = new ParameterManager(Updater.ADADELTA);
 		XOR model = new XOR(pm);
 		
-		model.train(loader,loader.data(),null,null,null,10000);
+		model.train(loader,loader.data(),null,null,null,1000000);
 	}
 
 	
