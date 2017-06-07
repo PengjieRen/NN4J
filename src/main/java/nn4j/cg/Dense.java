@@ -45,7 +45,7 @@ public class Dense extends Vertex{
 		}
 		Parameter biasParam=new Parameter(biasValue, RegType.None, 0, false);
 
-		return new Activate(new OuterProduct(maskings,new Concat(in,biasParam),W), activation, training);
+		return new Activate(maskings,new OuterProduct(maskings,new Concat(maskings,in,biasParam),W), activation, training);
 	}
 	@Override
 	public int[] shape() {

@@ -2,8 +2,9 @@ package nn4j.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,6 +69,12 @@ public class VocabHolder implements Serializable {
 		if (idfFile != null) {
 			readWordDF(idfFile);
 		}
+		if(!vocab2id.containsKey("<U>")){
+			int id= vocab2id.size();
+			vocab2id.put("<U>",id);
+			id2vocab.put(id, "<U>");
+			id2embed.put(id, Nd4j.rand(new int[]{1,dimension}));
+		}
 		System.out.println("Vocabulary Size: "+id2vocab().size());
 	}
 	
@@ -98,7 +105,7 @@ public class VocabHolder implements Serializable {
 		{
 			return id2embed.get(vocab2id.get(word));
 		}
-		return null;
+		return id2embed.get(vocab2id.get("<U>"));
 	}
 	
 	public INDArray toEmbed(int id){
@@ -110,7 +117,7 @@ public class VocabHolder implements Serializable {
 	}
 	
 	public INDArray toTFIDFVec(String word){
-		INDArray rs=Nd4j.create(new int[]{1, vocab2id.size()},'f');
+		INDArray rs=Nd4j.create(new int[]{1, vocab2id.size()});
 		if(vocab2id.containsKey(word))
 		{
 			int id=vocab2id.get(word);
@@ -121,7 +128,7 @@ public class VocabHolder implements Serializable {
 	}
 	
 	public INDArray toTFIDFVec(int id){
-		INDArray rs=Nd4j.create(new int[]{1, id2vocab.size()},'f');
+		INDArray rs=Nd4j.create(new int[]{1, id2vocab.size()});
 		if(id2vocab.containsKey(id))
 		{
 			rs.putScalar(id,id2tf.get(id)*id2idf.get(id));
@@ -131,7 +138,7 @@ public class VocabHolder implements Serializable {
 	}
 	
 	public INDArray toOneHotVec(String word){
-		INDArray rs=Nd4j.create(new int[]{1, vocab2id.size()},'f');
+		INDArray rs=Nd4j.create(new int[]{1, vocab2id.size()});
 		if(vocab2id.containsKey(word))
 		{
 			int id=vocab2id.get(word);
@@ -142,7 +149,7 @@ public class VocabHolder implements Serializable {
 	}
 	
 	public INDArray toOneHotVec(int id){
-		INDArray rs=Nd4j.create(new int[]{1, id2vocab.size()},'f');
+		INDArray rs=Nd4j.create(new int[]{1, id2vocab.size()});
 		if(id2vocab.containsKey(id))
 		{
 			rs.putScalar(id,1);
@@ -154,7 +161,7 @@ public class VocabHolder implements Serializable {
 	private void readWordDF(File file) {
 		BufferedReader br = null;
 		try {
-			br = new BufferedReader(new FileReader(file));
+			br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
 
 			int count = 0;
 			while (br.ready()) {
@@ -193,7 +200,7 @@ public class VocabHolder implements Serializable {
 	private void readWordTF(File file) {
 		BufferedReader br = null;
 		try {
-			br = new BufferedReader(new FileReader(file));
+			br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
 
 			int count = 0;
 			while (br.ready()) {
@@ -236,7 +243,7 @@ public class VocabHolder implements Serializable {
 	private void readWordEmbedding(File file) {
 		BufferedReader br = null;
 		try {
-			br = new BufferedReader(new FileReader(file));
+			br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
 			String[] temp = br.readLine().split(" ");
 			if (temp.length == 2) {
 				dimension = Integer.parseInt(temp[1]);
@@ -266,7 +273,7 @@ public class VocabHolder implements Serializable {
 				for (int i = 0; i < values.length; i++) {
 					values[i] = Float.parseFloat(line[i + 1]);
 				}
-				id2embed.put(id, Nd4j.create(values, new int[]{1,dimension},'f'));
+				id2embed.put(id, Nd4j.create(values, new int[]{1,dimension}));
 			}
 
 		} catch (Exception e) {

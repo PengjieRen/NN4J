@@ -5,11 +5,10 @@ import java.util.List;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-public class Parameter extends Expr{
-	
-	public enum RegType{
-		None,
-		L2
+public class Parameter extends Expr {
+
+	public enum RegType {
+		None, L2
 	}
 
 	private INDArray value;
@@ -17,39 +16,40 @@ public class Parameter extends Expr{
 	private boolean updatable;
 	private RegType regType;
 	private float lambdaReg;
-	public Parameter(INDArray value,RegType regType,float lambdaReg,boolean updatable){
-		this.value=value;
-		this.updatable=updatable;
-		this.regType=regType;
-		this.lambdaReg=lambdaReg;
-		this.gradients=new ArrayList<INDArray>();
+
+	public Parameter(INDArray value, RegType regType, float lambdaReg, boolean updatable) {
+		this.value = value;
+		this.updatable = updatable;
+		this.regType = regType;
+		this.lambdaReg = lambdaReg;
+		this.gradients = new ArrayList<INDArray>();
 	}
-	
-	public RegType regType(){
+
+	public RegType regType() {
 		return regType;
 	}
-	
-	public float lambdaReg(){
+
+	public float lambdaReg() {
 		return lambdaReg;
 	}
-	
-	public boolean updatable(){
+
+	public boolean updatable() {
 		return this.updatable;
 	}
-	
-	public INDArray value(){
+
+	public INDArray value() {
 		return value;
 	}
-	
+
 	@Override
-	public int[] shape(){
+	public int[] shape() {
 		return value.shape();
 	}
-	
-	public List<INDArray> gradients(){
+
+	public List<INDArray> gradients() {
 		return gradients;
 	}
-	
+
 	@Override
 	public INDArray doForward() {
 		return value;
@@ -57,8 +57,11 @@ public class Parameter extends Expr{
 
 	@Override
 	public void doBackward(INDArray epsilon) {
-		if(updatable){
-			gradients.add(epsilon);
+		if (updatable) {
+			if (gradients.size() == 0)
+				gradients.add(epsilon);
+			else
+				gradients.get(0).addi(epsilon);
 		}
 	}
 }

@@ -1,7 +1,5 @@
 package nn4j.expr;
 
-import java.util.Arrays;
-
 import org.apache.commons.math3.util.FastMath;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.rng.distribution.Distribution;
@@ -11,7 +9,7 @@ public class WeightInitUtil {
 	/**
      * Default order for the arrays created by WeightInitUtil.
      */
-    public static final char DEFAULT_WEIGHT_INIT_ORDER = 'f';
+    public static final char DEFAULT_WEIGHT_INIT_ORDER = System.getProperty("ndarray.order").charAt(0);
 
     private WeightInitUtil() {
     }
@@ -22,8 +20,6 @@ public class WeightInitUtil {
 
     /**
      * Initializes a matrix with the given weight initialization scheme.
-     * Note: Defaults to fortran ('f') order arrays for the weights. Use {@link #initWeights(int[], WeightInit, Distribution, char, INDArray)}
-     * to control this
      *
      * @param shape      the shape of the matrix
      * @param initScheme the scheme to use
@@ -84,14 +80,9 @@ public class WeightInitUtil {
                 throw new IllegalStateException("Illegal weight init value: " + initScheme);
         }
 
-        INDArray flat = Nd4j.toFlattened(order, ret);
-        if (flat.length() != paramView.length())
-            throw new RuntimeException("ParamView length does not match initialized weights length (view length: "
-                    + paramView.length() + ", view shape: " + Arrays.toString(paramView.shape()) + "; flattened length: " + flat.length());
+        paramView.assign(ret);
 
-        paramView.assign(flat);
-
-        return paramView.reshape(order, shape);
+        return paramView;
     }
 
 

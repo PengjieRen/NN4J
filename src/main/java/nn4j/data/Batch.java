@@ -6,6 +6,8 @@ import nn4j.expr.Parameter;
 
 public class Batch extends Data{
 	public Parameter[][] batchInputs;//input index, sequence index
-	public int[][] batchMaskings;//input index, sequence length
+	public Parameter[] batchOtherInputs;
+
+	public INDArray[] batchMaskings;//input index, sequence length
 	public INDArray batchGroundtruth;
 }

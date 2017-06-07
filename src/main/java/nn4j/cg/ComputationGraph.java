@@ -3,10 +3,11 @@ package nn4j.cg;
 import java.io.File;
 import java.util.List;
 
+import org.nd4j.linalg.api.ndarray.INDArray;
+
 import nn4j.data.Batch;
 import nn4j.data.Data;
 import nn4j.data.DataLoader;
-import nn4j.expr.Parameter;
 import nn4j.expr.ParameterManager;
 import nn4j.loss.Loss;
 
@@ -21,7 +22,7 @@ public abstract class ComputationGraph {
 
 	public abstract void parameters();
 
-	public abstract Loss model(Parameter[][] inputs, boolean training);
+	public abstract Loss model(Batch batch, boolean training);
 	
 	public abstract void test(String run,List<Data> testData,File gt);
 	
@@ -33,11 +34,13 @@ public abstract class ComputationGraph {
 				while (trainLoader.hasNext()) {
 					batch++;
 					Batch data = trainLoader.next();
-					Loss model = model(data.batchInputs, true);
-					model.forward();
+					Loss model = model(data,true);
+					INDArray output=model.forward();
 					loss+=model.backward(data.batchGroundtruth);
 					pm.update(i);
-					System.out.printf("Epoch %s Batch %s Loss %s" + System.lineSeparator(), i, batch, loss);
+					if(batch%10==0){
+						System.out.printf("Epoch %s Batch %s Loss %s" + System.lineSeparator(), i, batch, loss/batch);
+					}
 				}
 				System.out.printf("Epoch %s Loss %s" + System.lineSeparator(), i, loss);
 				if(devData!=null)

@@ -15,7 +15,7 @@ public class NDArrayCache {
 	private static Map<String, Stack<INDArray>> cache = new HashMap<String, Stack<INDArray>>();
 	private static Set<INDArray> sets = new HashSet<INDArray>();
 	private static Object _lock = new Object();
-	private static int limit = 100000;
+	private static int limit = 0;
 
 	private static String toID(int... shape) {
 		StringBuffer sb = new StringBuffer();
@@ -29,7 +29,7 @@ public class NDArrayCache {
 	}
 	
 	public static INDArray create(List<INDArray> arrays,int...shape){
-		return Nd4j.create(arrays, new int[]{arrays.size(),shape[0],shape[1]},'c');
+		return Nd4j.create(arrays, shape);
 	}
 
 	public static INDArray get(int... shape) {
@@ -41,7 +41,7 @@ public class NDArrayCache {
 				return a;
 			}
 		}
-		return Nd4j.zeros(shape,'c');
+		return Nd4j.zeros(shape);
 	}
 
 	public static void store(INDArray array) {

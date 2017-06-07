@@ -27,12 +27,16 @@ public class ParameterManager {
 
 	private List<Parameter> parameters=new ArrayList<Parameter>();
 	private Map<Parameter,GradientUpdater> updaters=new HashMap<Parameter, GradientUpdater>();
+	private Map<Parameter,Boolean> updaterInitialization=new HashMap<Parameter,Boolean>();
+
 	public Parameter createParameter(INDArray value,RegType regType,float lambdaReg,boolean updatable){
 		Parameter p=new Parameter(value, regType, lambdaReg,updatable);
 		parameters.add(p);
 		if(updatable)
 		{
-			updaters.put(p, updater(updater));
+			GradientUpdater gu=updater(updater);
+			updaters.put(p,gu );
+			updaterInitialization.put(p, false);
 		}
 		return p;
 	}
@@ -44,42 +48,46 @@ public class ParameterManager {
 			if(!param.updatable())
 				continue;
 			GradientUpdater paramUpdater=updaters.get(param);
-
-			if (iteration == 1)
+			
+			if (!updaterInitialization.get(param))
 			{
+				updaterInitialization.replace(param, true);
 				int[] shape=param.value().shape();
 				int[] nshape=new int[2];
 				nshape[0]=shape[0];
+				nshape[1]=paramUpdater.stateSizeForInputSize(shape[1]);
 				
-				switch (updater) {
-				case SGD:
-					nshape[1]=shape[1];
-					break;
-				case ADAM:
-					nshape[1]=2*shape[1];
-					break;
-				case ADADELTA:
-					nshape[1]=2*shape[1];
-					break;
-				case NESTEROVS:
-					nshape[1]=shape[1];
-					break;
-				case ADAGRAD:
-					nshape[1]=shape[1];
-					break;
-				case RMSPROP:
-					nshape[1]=shape[1];
-					break;
-				case NONE:
-					nshape[1]=shape[1];
-					break;
-				case CUSTOM:
-					throw new UnsupportedOperationException("Custom updaters: not yet implemented");
-				default:
-					nshape[1]=shape[1];
-				}
+//				switch (updater) {
+//				case SGD:
+//					nshape[1]=shape[1];
+//					break;
+//				case ADAM:
+//					nshape[1]=2*shape[1];
+//					break;
+//				case ADADELTA:
+//					nshape[1]=2*shape[1];
+//					break;
+//				case NESTEROVS:
+//					nshape[1]=shape[1];
+//					break;
+//				case ADAGRAD:
+//					nshape[1]=shape[1];
+//					break;
+//				case RMSPROP:
+//					nshape[1]=shape[1];
+//					break;
+//				case NONE:
+//					nshape[1]=shape[1];
+//					break;
+//				case CUSTOM:
+//					throw new UnsupportedOperationException("Custom updaters: not yet implemented");
+//				default:
+//					nshape[1]=shape[1];
+//				}
 
-				paramUpdater.setStateViewArray(Nd4j.toFlattened('c', NDArrayCache.get(nshape)), shape, 'c', true);
+				if(nshape[1]>0){
+					paramUpdater.setStateViewArray(Nd4j.toFlattened('c', NDArrayCache.get(nshape)), shape, 'c', true);
+				}
 			}
 
 			for(INDArray gra : param.gradients())

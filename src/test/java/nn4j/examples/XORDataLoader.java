@@ -10,12 +10,19 @@ import nn4j.data.Batch;
 import nn4j.data.Data;
 import nn4j.data.DataLoader;
 import nn4j.expr.Parameter;
+import nn4j.expr.ParameterManager;
 import nn4j.expr.Parameter.RegType;
 
 public class XORDataLoader extends DataLoader{
 	private float[][] inputArr = { { 0.0f, 0.0f }, { 0.0f, 1.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f } };
 	private float[][] outputArr = { { 0f }, { 1f }, { 1f }, { 0f } };
 	private boolean hasNext=true;
+	
+	
+	public XORDataLoader(ParameterManager pm) {
+		super(pm);
+		}
+	
 	@Override
 	public Batch next() {
 		hasNext=false;

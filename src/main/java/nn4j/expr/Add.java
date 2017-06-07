@@ -4,6 +4,11 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 
 import nn4j.utils.NDArrayCache;
 
+/**
+ * 
+ * @author pengjie ren
+ *
+ */
 public class Add extends Expr{
 
 	public Add(Expr... inputs){
@@ -21,7 +26,7 @@ public class Add extends Expr{
 			temp[i]=inputs.get(i).forward();
 			if(maskings!=null)
 			{
-				temp[i].muliColumnVector(maskings.getColumn(i));
+				temp[i]=temp[i].mulColumnVector(maskings.getColumn(i));
 			}
 		}
 		output=NDArrayCache.get(temp[0].shape());
