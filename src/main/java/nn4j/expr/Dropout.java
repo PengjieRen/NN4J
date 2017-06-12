@@ -51,7 +51,7 @@ public class Dropout extends Expr {
 
 	@Override
 	public void doBackward(INDArray epsilon) {
-		INDArray delta = epsilon.muli(acceptArray);
+		INDArray delta = epsilon.mul(acceptArray);
 		if (maskings != null) {
 			delta.muliColumnVector(maskings);
 		}

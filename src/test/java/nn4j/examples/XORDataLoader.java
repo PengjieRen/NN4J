@@ -10,8 +10,8 @@ import nn4j.data.Batch;
 import nn4j.data.Data;
 import nn4j.data.DataLoader;
 import nn4j.expr.Parameter;
-import nn4j.expr.ParameterManager;
 import nn4j.expr.Parameter.RegType;
+import nn4j.expr.ParameterManager;
 
 public class XORDataLoader extends DataLoader{
 	private float[][] inputArr = { { 0.0f, 0.0f }, { 0.0f, 1.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f } };
@@ -32,6 +32,8 @@ public class XORDataLoader extends DataLoader{
 		batch.batchInputs=new Parameter[1][1];
 		batch.batchInputs[0]=new Parameter[1];
 		batch.batchInputs[0][0]=input;
+		batch.batchMaskings=new INDArray[1];
+		batch.batchMaskings[0]=Nd4j.create(4, 1).assign(1);
 		batch.batchGroundtruth=output;
 		return batch;
 	}
@@ -55,6 +57,8 @@ public class XORDataLoader extends DataLoader{
 		batch.batchInputs=new Parameter[1][1];
 		batch.batchInputs[0]=new Parameter[1];
 		batch.batchInputs[0][0]=input;
+		batch.batchMaskings=new INDArray[1];
+		batch.batchMaskings[0]=Nd4j.create(4, 1).assign(1);
 		batch.batchGroundtruth=output;
 		data.add(batch);
 		return data;

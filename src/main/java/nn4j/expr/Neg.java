@@ -23,7 +23,11 @@ public class Neg extends Expr {
 
 	@Override
 	public INDArray doForward() {
-		output = input.forward().neg().muliColumnVector(maskings);
+		output = input.forward().neg();
+		if(maskings!=null)
+		{
+			output=output.muliColumnVector(maskings);
+		}
 		return output;
 	}
 

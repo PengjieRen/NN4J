@@ -54,7 +54,7 @@ public class Div extends Expr {
 	@Override
 	public void doBackward(INDArray epsilon) {
 		if (maskings != null) {
-			epsilon = epsilon.muliColumnVector(maskings);
+			epsilon = epsilon.mulColumnVector(maskings);
 		}
 		input1.backward(w2.mul(epsilon));
 		input2.backward(w1.mul(epsilon));

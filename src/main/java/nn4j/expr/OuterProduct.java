@@ -38,9 +38,9 @@ public class OuterProduct extends Expr {
 	public void doBackward(INDArray epsilon) {
 		if (maskings != null) {
 			input2.backward(w1.mulColumnVector(maskings).transposei().mmul(epsilon));
-			epsilon.muliColumnVector(maskings);
+			epsilon=epsilon.mulColumnVector(maskings);
 		} else {
-			input2.backward(w1.transposei().mmul(epsilon));
+			input2.backward(w1.transpose().mmul(epsilon));
 		}
 		input1.backward(epsilon.mmul(w2.transpose()));
 	}

@@ -36,7 +36,7 @@ public class InnerProduct extends Expr {
 	@Override
 	public void doBackward(INDArray epsilon) {
 		if (maskings != null) {
-			epsilon = epsilon.muliColumnVector(maskings);
+			epsilon = epsilon.mulColumnVector(maskings);
 		}
 
 		input1.backward(w2.mulColumnVector(epsilon));

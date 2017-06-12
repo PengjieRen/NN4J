@@ -45,9 +45,9 @@ public class XOR extends ComputationGraph{
 
 	@Override
 	public Loss model(Batch batch,  boolean training) {
-		Expr v1 = new Dense(batch.batchInputs[0][0],w1,Activation.SIGMOID,false,training);
-		Expr v2 = new Dense(v1,w2,Activation.SIGMOID,false,training);
-		Expr v3 = new Dense(v2,w3,Activation.SIGMOID,false,training);
+		Expr v1 = new Dense(batch.batchInputs[0][0],w1,Activation.SIGMOID,true,training);
+		Expr v2 = new Dense(v1,w2,Activation.SIGMOID,true,training);
+		Expr v3 = new Dense(v2,w3,Activation.SIGMOID,true,training);
 		Loss loss = new Loss(v3, LossFunction.MSE);
 		return loss;
 	}

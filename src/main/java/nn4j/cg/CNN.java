@@ -65,7 +65,7 @@ public class CNN extends Vertex {
 				poolMaskings.add(thisPoolMasking);
 			}
 			
-			pool.add(new OuterProduct(thisPoolMasking,new Concat(thisPoolMasking.broadcast(thisPoolMasking.shape()[0],concat.length),concat), W));
+			pool.add(new OuterProduct(thisPoolMasking,new Concat(concat), W));
 		}
 		
 		INDArray masking=Nd4j.concat(1, poolMaskings.toArray(new INDArray[0]));

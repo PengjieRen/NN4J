@@ -29,17 +29,6 @@ public class Min extends Expr {
 
 		INDArray minMaskings = null;
 		if (maskings != null) {
-			// minMaskings=NDArrayCache.get(maskings.shape());
-			// for (int i = 0; i < minMaskings.length(); i++) {
-			// float v=maskings.getFloat(i);
-			// if(v>0){
-			// minMaskings.putScalar(i, 0);
-			// }else
-			// {
-			// minMaskings.putScalar(i, Float.MAX_VALUE);
-			// }
-			// }
-
 			minMaskings = maskings.dup();
 			BooleanIndexing.applyWhere(minMaskings, Conditions.lessThanOrEqual(0), new Function<Number, Number>() {
 				@Override

@@ -47,7 +47,7 @@ public class Activate extends Expr {
 
 	@Override
 	public void doBackward(INDArray epsilon) {
-		INDArray delta = activation.backprop(preout, epsilon).getFirst();
+		INDArray delta = activation.backprop(preout.dup(), epsilon).getFirst();
 		if (maskings != null) {
 			delta.muliColumnVector(maskings);
 		}

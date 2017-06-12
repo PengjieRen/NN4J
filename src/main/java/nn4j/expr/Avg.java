@@ -57,12 +57,16 @@ public class Avg extends Expr {
 
 	@Override
 	public void doBackward(INDArray epsilon) {
+		if (maskings != null) {
+			epsilon=epsilon.mulColumnVector(sumCount);
+		}else{
+			epsilon=epsilon.div(inputs.size());
+		}
 		for (int i = 0; i < inputs.size(); i++) {
 			if (maskings != null) {
-				INDArray delta = epsilon.mulColumnVector(maskings.getColumn(i));
-				inputs.get(i).backward(delta.muliColumnVector(sumCount));
+				inputs.get(i).backward(epsilon.mulColumnVector(maskings.getColumn(i)));
 			} else {
-				inputs.get(i).backward(epsilon.div(inputs.size()));
+				inputs.get(i).backward(epsilon);
 			}
 		}
 	}

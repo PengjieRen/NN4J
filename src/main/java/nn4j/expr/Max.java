@@ -34,17 +34,6 @@ public class Max extends Expr {
 
 		INDArray maxMaskings = null;
 		if (maskings != null) {
-			// maxMaskings=NDArrayCache.get(maskings.shape());
-			// for (int i = 0; i < maxMaskings.length(); i++) {
-			// float v=maskings.getFloat(i);
-			// if(v>0){
-			// maxMaskings.putScalar(i, 0);
-			// }else
-			// {
-			// maxMaskings.putScalar(i, Float.MIN_VALUE);
-			// }
-			// }
-
 			maxMaskings = maskings.dup();
 			BooleanIndexing.applyWhere(maxMaskings, Conditions.lessThanOrEqual(0), new Function<Number, Number>() {
 				@Override

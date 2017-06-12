@@ -36,6 +36,8 @@ public class Concat extends Expr {
 			outputs[i] = inputs.get(i).forward();
 			if (maskings != null) {
 				outputs[i] = outputs[i].mulColumnVector(maskings.getColumn(i));
+			}else{
+				outputs[i] =outputs[i].dup();
 			}
 			lengths[i] = outputs[i].shape()[1];
 		}
