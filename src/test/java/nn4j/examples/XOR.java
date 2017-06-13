@@ -45,9 +45,9 @@ public class XOR extends ComputationGraph{
 
 	@Override
 	public Loss model(Batch batch,  boolean training) {
-		Expr v1 = new Dense(batch.batchInputs[0][0],w1,Activation.SIGMOID,true,training);
-		Expr v2 = new Dense(v1,w2,Activation.SIGMOID,true,training);
-		Expr v3 = new Dense(v2,w3,Activation.SIGMOID,true,training);
+		Expr v1 = new Dense(batch.batchInputs[0][0],w1,Activation.TANH,true,training);
+		Expr v2 = new Dense(v1,w2,Activation.TANH,true,training);
+		Expr v3 = new Dense(v2,w3,Activation.TANH,true,training);
 		Loss loss = new Loss(v3, LossFunction.MSE);
 		return loss;
 	}
@@ -58,7 +58,7 @@ public class XOR extends ComputationGraph{
 			Batch ins=(Batch)data;
 			Loss loss=model(ins,false);
 			INDArray output=loss.forward();
-			System.out.println(ins.batchInputs[0][0].value()+"=>"+output);
+			System.out.println(((Parameter)ins.batchInputs[0][0]).value()+"=>"+output);
 			loss.clear();
 		}
 	}
@@ -68,7 +68,7 @@ public class XOR extends ComputationGraph{
 		System.setProperty("ndarray.order", "c");
 
 //		CudaEnvironment.getInstance().getConfiguration().allowMultiGPU(true).allowCrossDeviceAccess(false).useDevices(0,1);
-		ParameterManager pm = new ParameterManager(Updater.RMSPROP);
+		ParameterManager pm = new ParameterManager(Updater.ADAGRAD);
 
 		DataLoader loader=new XORDataLoader(pm);
 		XOR model = new XOR(pm);

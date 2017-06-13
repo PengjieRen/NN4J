@@ -29,7 +29,6 @@ public class InnerProduct extends Expr {
 			output.muliColumnVector(maskings);
 		}
 		output = output.sum(1);
-
 		return output;
 	}
 
@@ -38,7 +37,6 @@ public class InnerProduct extends Expr {
 		if (maskings != null) {
 			epsilon = epsilon.mulColumnVector(maskings);
 		}
-
 		input1.backward(w2.mulColumnVector(epsilon));
 		input2.backward(w1.mulColumnVector(epsilon));
 	}
