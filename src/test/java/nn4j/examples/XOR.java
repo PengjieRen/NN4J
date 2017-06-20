@@ -17,7 +17,6 @@ import nn4j.data.Data;
 import nn4j.data.DataLoader;
 import nn4j.expr.DefaultParamInitializer;
 import nn4j.expr.Expr;
-import nn4j.expr.ParamInitializer;
 import nn4j.expr.Parameter;
 import nn4j.expr.Parameter.RegType;
 import nn4j.expr.ParameterManager;
@@ -37,10 +36,9 @@ public class XOR extends ComputationGraph{
 	
 	@Override
 	public void parameters() {
-		ParamInitializer init=new DefaultParamInitializer(WeightInit.DISTRIBUTION,new UniformDistribution(-0.1, 0.1));
-		w1 = pm.createParameter(init.init(new int[] { 3, 100 }),RegType.None,0, true);
-		w2 = pm.createParameter(init.init(new int[] { 101, 100 }),RegType.None,0, true);
-		w3 = pm.createParameter(init.init(new int[] { 101, 1 }),RegType.None,0, true);
+		w1 = pm.createParameter(new DefaultParamInitializer(WeightInit.DISTRIBUTION,new UniformDistribution(-0.3, 0.3)).init(new int[] { 3, 100 }),RegType.None,0, true,false);
+		w2 = pm.createParameter(new DefaultParamInitializer(WeightInit.DISTRIBUTION,new UniformDistribution(-0.01, 0.01)).init(new int[] { 101, 100 }),RegType.None,0, true,false);
+		w3 = pm.createParameter(new DefaultParamInitializer(WeightInit.DISTRIBUTION,new UniformDistribution(-0.01, 0.01)).init(new int[] { 101, 1 }),RegType.None,0, true,false);
 	}
 
 	@Override
@@ -68,7 +66,7 @@ public class XOR extends ComputationGraph{
 		System.setProperty("ndarray.order", "c");
 
 //		CudaEnvironment.getInstance().getConfiguration().allowMultiGPU(true).allowCrossDeviceAccess(false).useDevices(0,1);
-		ParameterManager pm = new ParameterManager(Updater.ADAGRAD);
+		ParameterManager pm = new ParameterManager(Updater.RMSPROP);
 
 		DataLoader loader=new XORDataLoader(pm);
 		XOR model = new XOR(pm);

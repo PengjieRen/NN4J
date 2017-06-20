@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-import nn4j.utils.NDArrayCache;
-
 public abstract class Expr {
 
 	protected INDArray output;
@@ -30,7 +28,10 @@ public abstract class Expr {
 	
 	public INDArray forward(){
 		if(output==null)
-		output=doForward();
+		{
+			output=doForward();
+		}
+		
 		return output;
 	}
 	
@@ -43,8 +44,6 @@ public abstract class Expr {
 	public void clear() {
 		if(output!=null)
 		{
-			NDArrayCache.store(output);
-			output=null;
 			for(Expr e : inputs){
 				e.clear();
 			}

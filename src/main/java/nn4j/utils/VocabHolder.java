@@ -5,254 +5,97 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.rng.distribution.impl.UniformDistribution;
 import org.nd4j.linalg.factory.Nd4j;
 
-/**
- * 
- * @author pengjie ren
- *
- */
-public class VocabHolder implements Serializable {
+public class VocabHolder {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2655252883178826426L;
-
-	private Map<String, Integer> vocab2id = new HashMap<String, Integer>();
-	private Map<Integer, String> id2vocab = new HashMap<Integer, String>();
-	private Map<Integer, Float> id2tf = new HashMap<Integer, Float>();
-	private Map<Integer, Float> id2idf = new HashMap<Integer, Float>();
-	private Map<Integer, INDArray> id2embed = new HashMap<Integer, INDArray>();
-	
-	public Map<String, Integer> vocab2id(){
-		return vocab2id;
+	private int dimension;
+	private int num;
+	private String unk="<u>";
+	private String pad="<p>";
+	private INDArray mem;
+	private Map<Integer,INDArray> id2embedding;
+	private Map<String,Integer> word2id;
+	public VocabHolder(String embedFile){
+		loadEmbedding(new File(embedFile));
 	}
 	
-	public Map<Integer, String> id2vocab(){
-		return id2vocab;
+	public VocabHolder(File embedFile){
+		loadEmbedding(embedFile);
 	}
-
-	/**
-	 * 
-	 * @param embedFile:
-	 *            word value1 value2 value3
-	 * @param tfFile:
-	 *            word tf
-	 * @param dfFile:
-	 *            word idf
-	 * @throws Exception
-	 */
-	public VocabHolder(String embedFile, String tfFile, String idfFile) {
-		if (embedFile != null) {
-			readWordEmbedding(new File(embedFile));
-		}
-		if (tfFile != null) {
-			readWordTF(new File(tfFile));
-		}
-		if (idfFile != null) {
-			readWordDF(new File(idfFile));
-		}
-	}
-	public VocabHolder(File embedFile, File tfFile, File idfFile) {
-		if (embedFile != null) {
-			readWordEmbedding(embedFile);
-		}
-		if (tfFile != null) {
-			readWordTF(tfFile);
-		}
-		if (idfFile != null) {
-			readWordDF(idfFile);
-		}
-		if(!vocab2id.containsKey("<U>")){
-			int id= vocab2id.size();
-			vocab2id.put("<U>",id);
-			id2vocab.put(id, "<U>");
-			id2embed.put(id, Nd4j.rand(new int[]{1,dimension}));
-		}
-		System.out.println("Vocabulary Size: "+id2vocab().size());
-	}
-	
-	public void addEmbed(String w,INDArray value){
-		if(!vocab2id.containsKey(w)){
-			int id=vocab2id.size();
-			vocab2id.put(w, id);
-		    id2vocab.put(id, w);
-		    id2embed.put(id, value);
-		}
-	}
-	
 	
 	public int toID(String word){
-		if(vocab2id.containsKey(word))
-			return vocab2id.get(word);
-		return -1;
+		if(word2id.containsKey(word))
+			return word2id.get(word);
+		return word2id.get(unk);
 	}
 	
-	public String toVocab(int id){
-		if(id2vocab.containsKey(id))
-			return id2vocab.get(id);
-		return null;
+	public INDArray toEmbed(String... words){
+		int[] tomerge=new int[words.length];
+		for(int i=0;i<words.length;i++){
+			tomerge[i]=toID(words[i]);
+		}
+		return mem.getRows(tomerge);
 	}
 	
 	public INDArray toEmbed(String word){
-		if(vocab2id.containsKey(word))
+		if(word2id.containsKey(word))
 		{
-			return id2embed.get(vocab2id.get(word));
+			return id2embedding.get(word2id.get(word));
 		}
-		return id2embed.get(vocab2id.get("<U>"));
+		return id2embedding.get(word2id.get(unk));
 	}
 	
 	public INDArray toEmbed(int id){
-		if(id2vocab.containsKey(id))
+		if(id2embedding.containsKey(id))
 		{
-			return id2embed.get(id);
+			return id2embedding.get(id);
 		}
 		return null;
-	}
+	}	
 	
-	public INDArray toTFIDFVec(String word){
-		INDArray rs=Nd4j.create(new int[]{1, vocab2id.size()});
-		if(vocab2id.containsKey(word))
-		{
-			int id=vocab2id.get(word);
-			rs.putScalar(id,id2tf.get(id)*id2idf.get(id));
-			return rs;
-		}
-		return null;
-	}
-	
-	public INDArray toTFIDFVec(int id){
-		INDArray rs=Nd4j.create(new int[]{1, id2vocab.size()});
-		if(id2vocab.containsKey(id))
-		{
-			rs.putScalar(id,id2tf.get(id)*id2idf.get(id));
-			return rs;
-		}
-		return null;
-	}
-	
-	public INDArray toOneHotVec(String word){
-		INDArray rs=Nd4j.create(new int[]{1, vocab2id.size()});
-		if(vocab2id.containsKey(word))
-		{
-			int id=vocab2id.get(word);
-			rs.putScalar(id,1);
-			return rs;
-		}
-		return null;
-	}
-	
-	public INDArray toOneHotVec(int id){
-		INDArray rs=Nd4j.create(new int[]{1, id2vocab.size()});
-		if(id2vocab.containsKey(id))
-		{
-			rs.putScalar(id,1);
-			return rs;
-		}
-		return null;
-	}
-
-	private void readWordDF(File file) {
-		BufferedReader br = null;
-		try {
-			br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
-
-			int count = 0;
-			while (br.ready()) {
-				if (count++ % 10000 == 0) {
-					System.out.printf("[Read] %s [Lines] %s\n", file, count);
-				}
-
-				String[] line = br.readLine().split(" ");
-				String word = line[0];
-				float df = Float.parseFloat(line[1]);
-				int id = -1;
-				if (!vocab2id.containsKey(word)) {
-					id = vocab2id.size();
-					vocab2id.put(word, id);
-					id2vocab.put(id, word);
-				} else {
-					System.out.printf("Duplicate word %s\n", word);
-					continue;
-				}
-				id2idf.put(id, df);
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (br != null)
-				try {
-					br.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-		}
-
-	}
-
-	private void readWordTF(File file) {
-		BufferedReader br = null;
-		try {
-			br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
-
-			int count = 0;
-			while (br.ready()) {
-				if (count++ % 10000 == 0) {
-					System.out.printf("[Read] %s [Lines] %s\n", file, count);
-				}
-
-				String[] line = br.readLine().split(" ");
-				String word = line[0];
-				float tf = Float.parseFloat(line[1]);
-				int id = -1;
-				if (!vocab2id.containsKey(word)) {
-					id = vocab2id.size();
-					vocab2id.put(word, id);
-					id2vocab.put(id, word);
-				} else {
-					System.out.printf("Duplicate word %s\n", word);
-					continue;
-				}
-				id2tf.put(id, tf);
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (br != null)
-				try {
-					br.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-		}
-
-	}
-
-	private int dimension;
 	public int dimension(){
 		return dimension;
 	}
-	private void readWordEmbedding(File file) {
+	
+	public Set<String> words(){
+		return word2id.keySet();
+	}
+	
+	private void loadEmbedding(File file){
+		int id = 0;
+
 		BufferedReader br = null;
 		try {
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
 			String[] temp = br.readLine().split(" ");
 			if (temp.length == 2) {
+				num=Integer.parseInt(temp[0]);
 				dimension = Integer.parseInt(temp[1]);
+				mem=Nd4j.create(num+2,dimension);
+				id2embedding=new HashMap<Integer, INDArray>();
+				word2id=new HashMap<String, Integer>();
+				
+				word2id.put(unk, id);
+				mem.putRow(id, Nd4j.rand(new int[]{1, dimension},new UniformDistribution(-0.01f, 0.01f)));
+				id2embedding.put(id, mem.getRow(id));
+				id++;
+				
+				word2id.put(pad, id);
+				mem.putRow(id, Nd4j.zeros(new int[]{1, dimension}));
+				id2embedding.put(id, mem.getRow(id));
+				id++;
 			}
 
-			int count = 0;
 			while (br.ready()) {
-				if (count++ % 10000 == 0) {
-					System.out.printf("[Read] %s [Lines] %s\n", file, count);
+				if (id % 10000 == 0) {
+					System.out.printf("[Read] %s [Lines] %s\n", file, id);
 				}
 
 				String[] line = br.readLine().split(" ");
@@ -260,20 +103,19 @@ public class VocabHolder implements Serializable {
 				if (line.length != dimension + 1) {
 					throw new Exception("Dimension wrong");
 				}
-				int id = -1;
-				if (!vocab2id.containsKey(word)) {
-					id = vocab2id.size();
-					vocab2id.put(word, id);
-					id2vocab.put(id, word);
+				if (!word2id.containsKey(word)) {
+					word2id.put(word, id);
+					
+					for (int i = 1; i < line.length; i++) {
+						mem.putScalar(id, i-1, Float.parseFloat(line[i]));
+					}
+					id2embedding.put(id, mem.getRow(id));
+					id++;
 				} else {
 					System.out.printf("Duplicate word %s\n", word);
 					continue;
 				}
-				float[] values = new float[dimension];
-				for (int i = 0; i < values.length; i++) {
-					values[i] = Float.parseFloat(line[i + 1]);
-				}
-				id2embed.put(id, Nd4j.create(values, new int[]{1,dimension}));
+				
 			}
 
 		} catch (Exception e) {
@@ -287,8 +129,4 @@ public class VocabHolder implements Serializable {
 				}
 		}
 	}
-	
-	
-	
-
 }

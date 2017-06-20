@@ -10,8 +10,6 @@ import org.nd4j.linalg.indexing.conditions.Conditions;
 
 import com.google.common.base.Function;
 
-import nn4j.utils.NDArrayCache;
-
 /**
  * 
  * @author pengjie ren
@@ -53,7 +51,7 @@ public class Max extends Expr {
 			outputs.add(output_);
 		}
 		int[] shape = outputs.get(0).shape();
-		INDArray temp = NDArrayCache.create(outputs, new int[] { outputs.size(), shape[0], shape[1] });
+		INDArray temp = Nd4j.create(outputs, new int[] { outputs.size(), shape[0], shape[1] });
 
 		output = Nd4j.max(temp, 0);
 		index = Nd4j.argMax(temp, 0);
@@ -67,7 +65,7 @@ public class Max extends Expr {
 		epsilonNext = new ArrayList<INDArray>();
 		int[] shape = index.shape();
 		for (int i = 0; i < inputs.size(); i++) {
-			epsilonNext.add(NDArrayCache.get(shape));
+			epsilonNext.add(Nd4j.zeros(shape));
 		}
 		for (int i = 0; i < shape[0]; i++) {
 			for (int j = 0; j < shape[1]; j++) {
@@ -76,22 +74,6 @@ public class Max extends Expr {
 		}
 		for (int i = 0; i < inputs.size(); i++) {
 			inputs.get(i).backward(epsilonNext.get(i));
-		}
-	}
-
-	@Override
-	public void clear() {
-		if (output != null) {
-			NDArrayCache.store(output);
-			output = null;
-			NDArrayCache.store(index);
-			index = null;
-			for (INDArray tmp : epsilonNext)
-				NDArrayCache.store(tmp);
-			epsilonNext.clear();
-			for (Expr e : inputs) {
-				e.clear();
-			}
 		}
 	}
 

@@ -1,8 +1,7 @@
 package nn4j.expr;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
-
-import nn4j.utils.NDArrayCache;
+import org.nd4j.linalg.factory.Nd4j;
 
 /**
  * 
@@ -28,11 +27,8 @@ public class Add extends Expr {
 				temp[i] = temp[i].mulColumnVector(maskings.getColumn(i));
 			}
 		}
-		output = NDArrayCache.get(temp[0].shape());
 
-		for (int i = 0; i < inputs.size(); i++) {
-			output.addi(temp[i]);
-		}
+		output =Nd4j.getNDArrayFactory().average(temp).muli(inputs.size());
 
 		return output;
 	}
@@ -40,12 +36,10 @@ public class Add extends Expr {
 	@Override
 	public void doBackward(INDArray epsilon) {
 		for (int i = 0; i < inputs.size(); i++) {
-			INDArray delta = null;
+			INDArray delta = epsilon;
 			if (maskings != null) {
-				delta = epsilon.mulColumnVector(maskings.getColumn(i));
-			} else {
-				delta = epsilon;
-			}
+				delta = delta.mulColumnVector(maskings.getColumn(i));
+			} 
 			inputs.get(i).backward(delta);
 		}
 	}

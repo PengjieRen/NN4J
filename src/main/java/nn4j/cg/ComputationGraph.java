@@ -31,6 +31,7 @@ public abstract class ComputationGraph {
 			for (int i = 1; i <= iterations; i++) {
 				float loss = 0;
 				int batch = 0;
+				long begin=System.currentTimeMillis();
 				while (trainLoader.hasNext()) {
 					batch++;
 					Batch data = trainLoader.next();
@@ -39,10 +40,13 @@ public abstract class ComputationGraph {
 					loss+=model.backward(data.batchGroundtruth);
 					pm.update(i);
 					if(batch%10==0){
-						System.out.printf("Epoch %s Batch %s Loss %s" + System.lineSeparator(), i, batch, loss/batch);
+						long end=System.currentTimeMillis();
+						System.out.printf("Epoch %s Batch %s Loss %s Time %ss" + System.lineSeparator(), i, batch, loss/batch, (end-begin)/1000);
 					}
 				}
-				System.out.printf("Epoch %s Loss %s" + System.lineSeparator(), i, loss);
+				
+				long end=System.currentTimeMillis();
+				System.out.printf("Epoch %s Loss %s Time %ss" + System.lineSeparator(), i, loss, (end-begin)/1000);
 				if(devData!=null)
 				{
 					test("dev-"+i,devData,devgt);

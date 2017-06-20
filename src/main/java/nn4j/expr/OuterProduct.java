@@ -2,8 +2,6 @@ package nn4j.expr;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-import nn4j.utils.NDArrayCache;
-
 public class OuterProduct extends Expr {
 
 	private Expr input1, input2;
@@ -26,8 +24,8 @@ public class OuterProduct extends Expr {
 		w1 = input1.forward();
 		w2 = input2.forward();
 
-		output = NDArrayCache.get(w1.shape()[0], w2.shape()[1]);
-		output = w1.mmul(w2, output);
+		output = w1.mmul(w2);
+		
 		if (maskings != null) {
 			output.muliColumnVector(maskings);
 		}

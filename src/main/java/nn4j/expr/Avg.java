@@ -1,12 +1,11 @@
 package nn4j.expr;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.BooleanIndexing;
 import org.nd4j.linalg.indexing.conditions.Conditions;
 
 import com.google.common.base.Function;
-
-import nn4j.utils.NDArrayCache;
 
 /**
  * 
@@ -34,31 +33,22 @@ public class Avg extends Expr {
 				temp[i]=temp[i].mulColumnVector(maskings.getColumn(i));
 			}
 		}
-		output = NDArrayCache.get(temp[0].shape());
-
-		for (int i = 0; i < inputs.size(); i++) {
-			output.addi(temp[i]);
-		}
-		if (maskings != null) {
-			sumCount = maskings.sum(1);
-
-			BooleanIndexing.applyWhere(sumCount, Conditions.greaterThan(0), new Function<Number, Number>() {
-				@Override
-				public Number apply(Number arg0) {
-					return 1.0f / arg0.floatValue();
-				}
-			});
-			output.muliColumnVector(sumCount);
-		} else {
-			output.divi(inputs.size());
-		}
+		output = Nd4j.getNDArrayFactory().average(temp);
+		
 		return output;
 	}
 
 	@Override
 	public void doBackward(INDArray epsilon) {
 		if (maskings != null) {
-			epsilon=epsilon.mulColumnVector(sumCount);
+			INDArray sum=maskings.sum(1);
+			BooleanIndexing.applyWhere(sum, Conditions.lessThan(0), new Function<Number, Number>() {
+				@Override
+				public Number apply(Number arg0) {
+					return 1.0f/arg0.floatValue();
+				}
+			});
+			epsilon=epsilon.mulColumnVector(sum);
 		}else{
 			epsilon=epsilon.div(inputs.size());
 		}

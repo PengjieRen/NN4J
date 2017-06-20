@@ -7,7 +7,6 @@ import org.nd4j.linalg.lossfunctions.ILossFunction;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 
 import nn4j.expr.Expr;
-import nn4j.utils.NDArrayCache;
 
 public class Loss{
 
@@ -43,8 +42,6 @@ public class Loss{
 	public void clear() {
 		if(output!=null)
 		{
-			NDArrayCache.store(output);
-			output=null;
 			prediction.clear();
 		}
 	}

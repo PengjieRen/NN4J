@@ -10,7 +10,7 @@
         <nd4j.backend>nd4j-native-platform</nd4j.backend>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.7</java.version>
-        <nd4j.version>0.7.2</nd4j.version>
+        <nd4j.version>0.8.0</nd4j.version>
     </properties>
 	 <dependencyManagement>
         <dependencies>

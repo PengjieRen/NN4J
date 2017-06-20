@@ -4,8 +4,6 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.random.impl.BernoulliDistribution;
 import org.nd4j.linalg.factory.Nd4j;
 
-import nn4j.utils.NDArrayCache;
-
 /**
  * 
  * @author pengjie ren
@@ -36,7 +34,7 @@ public class Dropout extends Expr {
 	@Override
 	public INDArray doForward() {
 		INDArray preout = input.forward();
-		acceptArray = NDArrayCache.get(preout.shape());
+		acceptArray = Nd4j.zeros(preout.shape());
 		if (training) {
 			Nd4j.getExecutioner().exec(new BernoulliDistribution(acceptArray, rejectProb));
 		} else {
@@ -56,19 +54,6 @@ public class Dropout extends Expr {
 			delta.muliColumnVector(maskings);
 		}
 		input.backward(delta);
-	}
-
-	@Override
-	public void clear() {
-		if (output != null) {
-			NDArrayCache.store(output);
-			output = null;
-			NDArrayCache.store(acceptArray);
-			acceptArray = null;
-			for (Expr e : inputs) {
-				e.clear();
-			}
-		}
 	}
 
 	@Override

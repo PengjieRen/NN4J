@@ -1,7 +1,8 @@
 package nn4j.examples;
 
-import org.nd4j.linalg.activations.Activation;
-import org.nd4j.linalg.activations.IActivation;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -11,13 +12,21 @@ public class Temp {
 		INDArray input1=Nd4j.rand(new int[]{2,3});
 		INDArray input2=Nd4j.rand(new int[]{2,3});
 		System.out.println(input1);
-		System.out.println(input2);
 		
-		INDArray input3=Nd4j.concat(1, input1,input2);
-		System.out.println(input3);
-		input3.putScalar(1, 111);
-		System.out.println(input3);
+		input1.getRow(0).putScalar(0, 111);
 		System.out.println(input1);
+
+//		System.out.println(input2);
+//		
+//		List<INDArray> list=new ArrayList<INDArray>();
+//		list.add(input1);
+//		list.add(input2);
+//
+//		INDArray input3=Nd4j.vstack(input1,input2);
+//		input3.putScalar(0, 111);
+//		
+//		System.out.println(input3);
+//		System.out.println(input1);
 		
 //		IActivation activation=Activation.SOFTMAX.getActivationFunction();
 //		INDArray input=Nd4j.rand(new int[]{2,3});

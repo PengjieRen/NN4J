@@ -3,9 +3,11 @@ package nn4j.cg;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
+import nn4j.expr.Activate;
 import nn4j.expr.Add;
 import nn4j.expr.Avg;
 import nn4j.expr.Concat;
@@ -65,7 +67,7 @@ public class CNN extends Vertex {
 				poolMaskings.add(thisPoolMasking);
 			}
 			
-			pool.add(new OuterProduct(thisPoolMasking,new Concat(concat), W));
+			pool.add(new Activate(thisPoolMasking,new OuterProduct(thisPoolMasking,new Concat(concat), W), Activation.TANH, training));
 		}
 		
 		INDArray masking=Nd4j.concat(1, poolMaskings.toArray(new INDArray[0]));

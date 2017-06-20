@@ -17,8 +17,11 @@ public abstract class Vertex extends Expr{
 	
 	@Override
 	public INDArray doForward() {
+		
 		function=function();
-		return function.forward();
+		INDArray ret= function.forward();
+		
+		return ret;
 	}
 	
 	public abstract Expr function();

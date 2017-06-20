@@ -15,7 +15,6 @@ import org.nd4j.linalg.learning.Nesterovs;
 import org.nd4j.linalg.learning.NoOpUpdater;
 
 import nn4j.expr.Parameter.RegType;
-import nn4j.utils.NDArrayCache;
 
 
 public class ParameterManager {
@@ -28,15 +27,46 @@ public class ParameterManager {
 	private List<Parameter> parameters=new ArrayList<Parameter>();
 	private Map<Parameter,GradientUpdater> updaters=new HashMap<Parameter, GradientUpdater>();
 	private Map<Parameter,Boolean> updaterInitialization=new HashMap<Parameter,Boolean>();
+	
+	private List<Parameter> tempParameters=new ArrayList<Parameter>();
+	private Map<Parameter,GradientUpdater> tempUpdaters=new HashMap<Parameter, GradientUpdater>();
+	private Map<Parameter,Boolean> tempUpdaterInitialization=new HashMap<Parameter,Boolean>();
 
-	public Parameter createParameter(INDArray value,RegType regType,float lambdaReg,boolean updatable){
-		Parameter p=new Parameter(value, regType, lambdaReg,updatable);
-		parameters.add(p);
+	
+	public Parameter createParameter(INDArray maskings,INDArray value,RegType regType,float lambdaReg,boolean updatable,boolean temp){
+		Parameter p=new Parameter(maskings,value, regType, lambdaReg,updatable);
 		if(updatable)
 		{
-			GradientUpdater gu=updater(updater);
-			updaters.put(p,gu );
-			updaterInitialization.put(p, false);
+			if(temp){
+				tempParameters.add(p);
+				GradientUpdater gu=updater(updater);
+				tempUpdaters.put(p,gu );
+				tempUpdaterInitialization.put(p, false);
+			}else{
+				parameters.add(p);
+				GradientUpdater gu=updater(updater);
+				updaters.put(p,gu );
+				updaterInitialization.put(p, false);
+			}
+		}
+		return p;
+	}
+	
+	public Parameter createParameter(INDArray value,RegType regType,float lambdaReg,boolean updatable,boolean temp){
+		Parameter p=new Parameter(value, regType, lambdaReg,updatable);
+		if(updatable)
+		{
+			if(temp){
+				tempParameters.add(p);
+				GradientUpdater gu=updater(updater);
+				tempUpdaters.put(p,gu );
+				tempUpdaterInitialization.put(p, false);
+			}else{
+				parameters.add(p);
+				GradientUpdater gu=updater(updater);
+				updaters.put(p,gu );
+				updaterInitialization.put(p, false);
+			}
 		}
 		return p;
 	}
@@ -44,63 +74,63 @@ public class ParameterManager {
 	public void update(int iteration) throws Exception{
 		if(iteration<=0)throw new Exception("must larger than 0");
 		for (int i = 0; i < parameters.size(); i++) {
-			Parameter param = parameters.get(i);
-			if(!param.updatable())
-				continue;
-			GradientUpdater paramUpdater=updaters.get(param);
-			
+			update(parameters.get(i),iteration);
+		}
+		
+		for (int i = 0; i < tempParameters.size(); i++) {
+			update(tempParameters.get(i),iteration);
+		}
+		reset();
+	}
+	
+	private void update(Parameter param,int iteration){
+
+		GradientUpdater paramUpdater=null;
+		if(updaters.containsKey(param))
+		{
+			paramUpdater=updaters.get(param);
+		}else if(tempUpdaters.containsKey(param)){
+			paramUpdater=tempUpdaters.get(param);
+		}
+		
+		boolean init=false;
+		if(updaterInitialization.containsKey(param)){
 			if (!updaterInitialization.get(param))
 			{
 				updaterInitialization.replace(param, true);
-				int[] shape=param.value().shape();
-				int[] nshape=new int[2];
-				nshape[0]=shape[0];
-				nshape[1]=paramUpdater.stateSizeForInputSize(shape[1]);
-				
-//				switch (updater) {
-//				case SGD:
-//					nshape[1]=shape[1];
-//					break;
-//				case ADAM:
-//					nshape[1]=2*shape[1];
-//					break;
-//				case ADADELTA:
-//					nshape[1]=2*shape[1];
-//					break;
-//				case NESTEROVS:
-//					nshape[1]=shape[1];
-//					break;
-//				case ADAGRAD:
-//					nshape[1]=shape[1];
-//					break;
-//				case RMSPROP:
-//					nshape[1]=shape[1];
-//					break;
-//				case NONE:
-//					nshape[1]=shape[1];
-//					break;
-//				case CUSTOM:
-//					throw new UnsupportedOperationException("Custom updaters: not yet implemented");
-//				default:
-//					nshape[1]=shape[1];
-//				}
-
-				if(nshape[1]>0){
-					paramUpdater.setStateViewArray(Nd4j.toFlattened('c', NDArrayCache.get(nshape)), shape, 'c', true);
-				}
-			}
-
-			for(INDArray gra : param.gradients())
-			{
-				if(param.regType().equals(RegType.L2)){
-					gra.addi(param.value().mul(param.lambdaReg()));
-				}
-				
-				gra = paramUpdater.getGradient(gra, iteration);
-				param.value().subi(gra);
+				init=true;
 			}
 		}
-		reset();
+		else if(tempUpdaterInitialization.containsKey(param)){
+			if (!tempUpdaterInitialization.get(param))
+			{
+				tempUpdaterInitialization.replace(param, true);
+				init=true;
+			}
+		}
+		
+		if(init){
+			int[] shape=param.value().shape();
+			int[] nshape=new int[2];
+			nshape[0]=shape[0];
+			nshape[1]=paramUpdater.stateSizeForInputSize(shape[1]);
+			
+			if(nshape[1]>0){
+				char order=System.getProperty("ndarray.order").charAt(0);
+				paramUpdater.setStateViewArray(Nd4j.toFlattened(order, Nd4j.zeros(nshape)), shape, order, true);
+			}
+		}
+
+		for(INDArray gra : param.gradients())
+		{
+			if(param.regType().equals(RegType.L2)){
+				gra.addi(param.value().mul(param.lambdaReg()));
+			}
+			
+			gra = paramUpdater.getGradient(gra, iteration);
+			param.value().subi(gra);
+		}
+	
 	}
 	
 	public void reset(){
@@ -108,6 +138,9 @@ public class ParameterManager {
 			Parameter param = parameters.get(i);
 			param.gradients().clear();
 		}
+		tempParameters.clear();
+		tempUpdaterInitialization.clear();
+		tempUpdaters.clear();
 	}
 	
 	public enum Updater {

@@ -4,8 +4,6 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.activations.IActivation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-import nn4j.utils.NDArrayCache;
-
 /**
  * 
  * @author pengjie ren
@@ -36,9 +34,7 @@ public class Activate extends Expr {
 	@Override
 	public INDArray doForward() {
 		preout = input.forward();
-		output = NDArrayCache.get(preout.shape());
-		output.assign(preout);
-		output = activation.getActivation(output, training);
+		output = activation.getActivation(preout.dup(), training);
 		if (maskings != null) {
 			output.muliColumnVector(maskings);
 		}

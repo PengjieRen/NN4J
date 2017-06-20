@@ -1,6 +1,7 @@
 package nn4j.expr;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 
 /**
  * 
@@ -34,7 +35,7 @@ public class Mul extends Expr {
 		if (maskings != null) {
 			output.muliColumnVector(maskings);
 		}
-
+		
 		return output;
 	}
 

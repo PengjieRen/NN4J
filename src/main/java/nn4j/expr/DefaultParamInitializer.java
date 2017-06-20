@@ -3,8 +3,7 @@ package nn4j.expr;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.rng.distribution.Distribution;
 import org.nd4j.linalg.api.rng.distribution.impl.UniformDistribution;
-
-import nn4j.utils.NDArrayCache;
+import org.nd4j.linalg.factory.Nd4j;
 
 public class DefaultParamInitializer implements ParamInitializer{
 
@@ -26,7 +25,7 @@ public class DefaultParamInitializer implements ParamInitializer{
 		return WeightInitUtil.initWeights(1, 1, view.shape(), init, dist, view);
 	}
 	public INDArray init(int... shape){
-		INDArray view=NDArrayCache.get(shape);
+		INDArray view=Nd4j.zeros(shape);
 		return WeightInitUtil.initWeights(1, 1, shape, init, dist, view);
 	}
 }

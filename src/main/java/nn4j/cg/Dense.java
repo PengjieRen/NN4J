@@ -10,7 +10,6 @@ import nn4j.expr.Expr;
 import nn4j.expr.OuterProduct;
 import nn4j.expr.Parameter;
 import nn4j.expr.Parameter.RegType;
-import nn4j.utils.NDArrayCache;
 
 public class Dense extends Vertex{
 
@@ -40,9 +39,9 @@ public class Dense extends Vertex{
 	public Expr function() {
 		INDArray biasValue=null;
 		if(bias){
-			biasValue=NDArrayCache.get(in.shape()[0],1).assign(1);
+			biasValue=Nd4j.ones(in.shape()[0],1);
 		}else{
-			biasValue=NDArrayCache.get(in.shape()[0],1).assign(0);
+			biasValue=Nd4j.zeros(in.shape()[0],1);
 		}
 		Parameter biasParam=new Parameter(biasValue, RegType.None, 0, false);
 		INDArray concatMasking=null;

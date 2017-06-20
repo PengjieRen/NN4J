@@ -24,6 +24,15 @@ public class Parameter extends Expr {
 		this.lambdaReg = lambdaReg;
 		this.gradients = new ArrayList<INDArray>();
 	}
+	
+	public Parameter(INDArray maskings,INDArray value, RegType regType, float lambdaReg, boolean updatable) {
+		super(maskings);
+		this.value = value;
+		this.updatable = updatable;
+		this.regType = regType;
+		this.lambdaReg = lambdaReg;
+		this.gradients = new ArrayList<INDArray>();
+	}
 
 	public RegType regType() {
 		return regType;
@@ -39,6 +48,10 @@ public class Parameter extends Expr {
 
 	public INDArray value() {
 		return value;
+	}
+	
+	public void value(INDArray v){
+		value=v;
 	}
 
 	@Override
@@ -58,10 +71,17 @@ public class Parameter extends Expr {
 	@Override
 	public void doBackward(INDArray epsilon) {
 		if (updatable) {
+			if(maskings!=null){
+				epsilon.muliColumnVector(maskings);
+			}
 			if (gradients.size() == 0)
+			{
 				gradients.add(epsilon);
+			}
 			else
+			{
 				gradients.get(0).addi(epsilon);
+			}
 		}
 	}
 }

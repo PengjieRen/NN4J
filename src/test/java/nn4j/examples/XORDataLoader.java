@@ -15,7 +15,7 @@ import nn4j.expr.ParameterManager;
 
 public class XORDataLoader extends DataLoader{
 	private float[][] inputArr = { { 0.0f, 0.0f }, { 0.0f, 1.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f } };
-	private float[][] outputArr = { { -1f }, { 1f }, { 1f }, { -1f } };
+	private float[][] outputArr = { { 0f }, { 1f }, { 1f }, { 0f } };
 	private boolean hasNext=true;
 	
 	
