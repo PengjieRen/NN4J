@@ -21,24 +21,12 @@ public class Concat extends Expr {
 		}
 	}
 
-	public Concat(INDArray maskings, Expr... inputs) {
-		super(maskings, inputs);
-		for (int i = 0; i < inputs.length; i++) {
-			length += inputs[i].shape()[1];
-		}
-	}
-
 	@Override
 	public INDArray doForward() {
 		INDArray[] outputs = new INDArray[inputs.size()];
 		lengths = new int[inputs.size()];
 		for (int i = 0; i < inputs.size(); i++) {
 			outputs[i] = inputs.get(i).forward();
-			if (maskings != null) {
-				outputs[i] = outputs[i].mulColumnVector(maskings.getColumn(i));
-			}else{
-				outputs[i] =outputs[i].dup();
-			}
 			lengths[i] = outputs[i].shape()[1];
 		}
 		output = Nd4j.concat(1, outputs);
@@ -51,9 +39,9 @@ public class Concat extends Expr {
 		for (int i = 0; i < inputs.size(); i++) {
 			INDArray delta = epsilon.get(NDArrayIndex.all(), NDArrayIndex.interval(st, st + lengths[i]));
 			st += lengths[i];
-			if (maskings != null) {
-				delta = delta.mulColumnVector(maskings.getColumn(i));
-			}
+//			if (maskings != null) {
+//				delta = delta.mulColumnVector(maskings.getColumn(i));
+//			}
 			inputs.get(i).backward(delta);
 		}
 	}

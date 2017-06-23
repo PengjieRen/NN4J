@@ -13,7 +13,7 @@ public class Temp {
 		INDArray input2=Nd4j.rand(new int[]{2,3});
 		System.out.println(input1);
 		
-		input1.getRow(0).putScalar(0, 111);
+		Nd4j.concat(1, input1,input2).putScalar(0, 111);
 		System.out.println(input1);
 
 //		System.out.println(input2);

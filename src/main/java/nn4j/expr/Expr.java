@@ -9,16 +9,8 @@ public abstract class Expr {
 
 	protected INDArray output;
 	protected List<Expr> inputs=new ArrayList<Expr>();
-	protected INDArray maskings;
 
 	protected Expr(Expr...exprs){
-		for(Expr e : exprs){
-			inputs.add(e);
-		}
-	}
-	
-	protected Expr(INDArray maskings,Expr...exprs){
-		this.maskings=maskings;
 		for(Expr e : exprs){
 			inputs.add(e);
 		}

@@ -51,12 +51,12 @@ public class LSTMUnit extends Vertex{
 	@Override
 	public Expr function() {
 		Expr inConcat=new Concat(h,in);
-		Expr i=new Dense(inConcat, W_i, Activation.SIGMOID, true, training);
-		Expr f=new Dense(inConcat, W_f, Activation.SIGMOID, true, training);
-		Expr o=new Dense(inConcat, W_o, Activation.SIGMOID, true, training);
-		Expr g=new Dense(inConcat, W_g, Activation.TANH, true, training);
+		Expr i=new Dense(maskings,inConcat, W_i, Activation.SIGMOID, true, training);
+		Expr f=new Dense(maskings,inConcat, W_f, Activation.SIGMOID, true, training);
+		Expr o=new Dense(maskings,inConcat, W_o, Activation.SIGMOID, true, training);
+		Expr g=new Dense(maskings,inConcat, W_g, Activation.TANH, true, training);
 		c=new Add(new Mul(f,c),new Mul(i,g));
-		h=new Mul(maskings,o,new Activate(c, Activation.TANH, training));
+		h=new Mul(o,new Activate(c, Activation.TANH, training));
 		return h;
 	}
 

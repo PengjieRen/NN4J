@@ -13,30 +13,18 @@ public class InnerProduct extends Expr {
 		this.input2 = input2;
 	}
 
-	public InnerProduct(INDArray maskings, Expr input1, Expr input2) {
-		super(maskings, input1, input2);
-		this.input1 = input1;
-		this.input2 = input2;
-	}
-
 	@Override
 	public INDArray doForward() {
 		w1 = input1.forward();
 		w2 = input2.forward();
 
 		output = w1.mul(w2);
-		if (maskings != null) {
-			output.muliColumnVector(maskings);
-		}
 		output = output.sum(1);
 		return output;
 	}
 
 	@Override
 	public void doBackward(INDArray epsilon) {
-		if (maskings != null) {
-			epsilon = epsilon.mulColumnVector(maskings);
-		}
 		input1.backward(w2.mulColumnVector(epsilon));
 		input2.backward(w1.mulColumnVector(epsilon));
 	}

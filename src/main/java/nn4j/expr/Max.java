@@ -5,10 +5,6 @@ import java.util.List;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.indexing.BooleanIndexing;
-import org.nd4j.linalg.indexing.conditions.Conditions;
-
-import com.google.common.base.Function;
 
 /**
  * 
@@ -23,31 +19,13 @@ public class Max extends Expr {
 		super(inputs);
 	}
 
-	public Max(INDArray maskings, Expr... inputs) {
-		super(maskings, inputs);
-	}
-
 	@Override
 	public INDArray doForward() {
-
-		INDArray maxMaskings = null;
-		if (maskings != null) {
-			maxMaskings = maskings.dup();
-			BooleanIndexing.applyWhere(maxMaskings, Conditions.lessThanOrEqual(0), new Function<Number, Number>() {
-				@Override
-				public Number apply(Number arg0) {
-					return Float.MIN_VALUE;
-				}
-			});
-		}
 
 		List<INDArray> outputs = new ArrayList<INDArray>();
 
 		for (int i = 0; i < inputs.size(); i++) {
 			INDArray output_ = inputs.get(i).forward();
-			if (maskings != null) {
-				output_ = output_.mulColumnVector(maskings.getColumn(i)).addiColumnVector(maxMaskings.getColumn(i));
-			}
 			outputs.add(output_);
 		}
 		int[] shape = outputs.get(0).shape();

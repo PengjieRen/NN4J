@@ -7,12 +7,13 @@ import nn4j.expr.Expr;
 public abstract class Vertex extends Expr{
 
 	private Expr function;
+	protected INDArray maskings;
 	
 	protected Vertex() {
 	}
 	
 	protected Vertex(INDArray maskings) {
-		super(maskings);
+		this.maskings=maskings;
 	}
 	
 	@Override

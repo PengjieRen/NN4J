@@ -22,31 +22,18 @@ public class Activate extends Expr {
 		this.training = training;
 	}
 
-	public Activate(INDArray maskings, Expr input, Activation activation, boolean training) {
-		super(maskings, input);
-		this.input = input;
-		this.activation = activation.getActivationFunction();
-		this.training = training;
-	}
-
 	private INDArray preout;
 
 	@Override
 	public INDArray doForward() {
 		preout = input.forward();
 		output = activation.getActivation(preout.dup(), training);
-		if (maskings != null) {
-			output.muliColumnVector(maskings);
-		}
 		return output;
 	}
 
 	@Override
 	public void doBackward(INDArray epsilon) {
 		INDArray delta = activation.backprop(preout.dup(), epsilon).getFirst();
-		if (maskings != null) {
-			delta.muliColumnVector(maskings);
-		}
 		input.backward(delta);
 	}
 

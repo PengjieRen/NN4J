@@ -14,18 +14,11 @@ public class Add extends Expr {
 		super(inputs);
 	}
 
-	public Add(INDArray maskings, Expr... inputs) {
-		super(maskings, inputs);
-	}
-
 	@Override
 	public INDArray doForward() {
 		INDArray[] temp = new INDArray[inputs.size()];
 		for (int i = 0; i < inputs.size(); i++) {
 			temp[i] = inputs.get(i).forward();
-			if (maskings != null) {
-				temp[i] = temp[i].mulColumnVector(maskings.getColumn(i));
-			}
 		}
 
 		output =Nd4j.getNDArrayFactory().average(temp).muli(inputs.size());
@@ -37,9 +30,6 @@ public class Add extends Expr {
 	public void doBackward(INDArray epsilon) {
 		for (int i = 0; i < inputs.size(); i++) {
 			INDArray delta = epsilon;
-			if (maskings != null) {
-				delta = delta.mulColumnVector(maskings.getColumn(i));
-			} 
 			inputs.get(i).backward(delta);
 		}
 	}

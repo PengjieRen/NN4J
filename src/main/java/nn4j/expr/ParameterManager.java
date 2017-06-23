@@ -32,26 +32,6 @@ public class ParameterManager {
 	private Map<Parameter,GradientUpdater> tempUpdaters=new HashMap<Parameter, GradientUpdater>();
 	private Map<Parameter,Boolean> tempUpdaterInitialization=new HashMap<Parameter,Boolean>();
 
-	
-	public Parameter createParameter(INDArray maskings,INDArray value,RegType regType,float lambdaReg,boolean updatable,boolean temp){
-		Parameter p=new Parameter(maskings,value, regType, lambdaReg,updatable);
-		if(updatable)
-		{
-			if(temp){
-				tempParameters.add(p);
-				GradientUpdater gu=updater(updater);
-				tempUpdaters.put(p,gu );
-				tempUpdaterInitialization.put(p, false);
-			}else{
-				parameters.add(p);
-				GradientUpdater gu=updater(updater);
-				updaters.put(p,gu );
-				updaterInitialization.put(p, false);
-			}
-		}
-		return p;
-	}
-	
 	public Parameter createParameter(INDArray value,RegType regType,float lambdaReg,boolean updatable,boolean temp){
 		Parameter p=new Parameter(value, regType, lambdaReg,updatable);
 		if(updatable)

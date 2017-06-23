@@ -22,22 +22,10 @@ public class Div extends Expr {
 		this.input2 = input2;
 	}
 
-	public Div(INDArray maskings, Expr input1, Expr input2) {
-		super(maskings, input1, input2);
-		this.input1 = input1;
-		this.input2 = input2;
-	}
-
 	@Override
 	public INDArray doForward() {
 		w1 = input1.forward();
-		if (maskings != null) {
-			w1 = w1.mulColumnVector(maskings);
-		}
 		w2 = input2.forward();
-		if (maskings != null) {
-			w2 = w2.mulColumnVector(maskings);
-		}
 
 		BooleanIndexing.applyWhere(w2, Conditions.greaterThan(0), new Function<Number, Number>() {
 			@Override
@@ -53,9 +41,6 @@ public class Div extends Expr {
 
 	@Override
 	public void doBackward(INDArray epsilon) {
-		if (maskings != null) {
-			epsilon = epsilon.mulColumnVector(maskings);
-		}
 		input1.backward(w2.mul(epsilon));
 		input2.backward(w1.mul(epsilon));
 	}

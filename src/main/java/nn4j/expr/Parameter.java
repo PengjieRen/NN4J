@@ -25,15 +25,6 @@ public class Parameter extends Expr {
 		this.gradients = new ArrayList<INDArray>();
 	}
 	
-	public Parameter(INDArray maskings,INDArray value, RegType regType, float lambdaReg, boolean updatable) {
-		super(maskings);
-		this.value = value;
-		this.updatable = updatable;
-		this.regType = regType;
-		this.lambdaReg = lambdaReg;
-		this.gradients = new ArrayList<INDArray>();
-	}
-
 	public RegType regType() {
 		return regType;
 	}
@@ -71,9 +62,6 @@ public class Parameter extends Expr {
 	@Override
 	public void doBackward(INDArray epsilon) {
 		if (updatable) {
-			if(maskings!=null){
-				epsilon.muliColumnVector(maskings);
-			}
 			if (gradients.size() == 0)
 			{
 				gradients.add(epsilon);

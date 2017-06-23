@@ -45,10 +45,10 @@ public class GRUUnit extends Vertex{
 	@Override
 	public Expr function() {
 		Expr inConcat=new Concat(h,in);
-		Expr z=new Dense(inConcat, W_z, Activation.SIGMOID, true, training);
-		Expr r=new Dense(inConcat, W_r, Activation.SIGMOID, true, training);
-		Expr h_=new Dense(new Concat(new Mul(r,h),in), W, Activation.TANH, true, training);
-		h=new Add(maskings,h,new Neg(new Mul(z,h)),new Mul(z,h_));
+		Expr z=new Dense(maskings,inConcat, W_z, Activation.SIGMOID, true, training);
+		Expr r=new Dense(maskings,inConcat, W_r, Activation.SIGMOID, true, training);
+		Expr h_=new Dense(maskings,new Concat(new Mul(r,h),in), W, Activation.TANH, true, training);
+		h=new Add(h,new Neg(new Mul(z,h)),new Mul(z,h_));
 		return h;
 	}
 

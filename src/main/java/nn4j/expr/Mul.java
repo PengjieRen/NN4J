@@ -1,7 +1,6 @@
 package nn4j.expr;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
 
 /**
  * 
@@ -19,12 +18,6 @@ public class Mul extends Expr {
 		this.input2 = input2;
 	}
 
-	public Mul(INDArray maskings, Expr input1, Expr input2) {
-		super(maskings, input1, input2);
-		this.input1 = input1;
-		this.input2 = input2;
-	}
-
 	@Override
 	public INDArray doForward() {
 		w1 = input1.forward();
@@ -32,18 +25,11 @@ public class Mul extends Expr {
 
 		output = w1.mul(w2);
 
-		if (maskings != null) {
-			output.muliColumnVector(maskings);
-		}
-		
 		return output;
 	}
 
 	@Override
 	public void doBackward(INDArray epsilon) {
-		if (maskings != null) {
-			epsilon = epsilon.mulColumnVector(maskings);
-		}
 		input1.backward(w2.mul(epsilon));
 		input2.backward(w1.mul(epsilon));
 	}

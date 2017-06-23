@@ -22,13 +22,6 @@ public class Dropout extends Expr {
 		this.training = training;
 	}
 
-	public Dropout(INDArray maskings, Expr input, float acceptProb, boolean training) {
-		super(maskings, input);
-		this.input = input;
-		this.rejectProb = 1.0f - acceptProb;
-		this.training = training;
-	}
-
 	private INDArray acceptArray;
 
 	@Override
@@ -41,18 +34,12 @@ public class Dropout extends Expr {
 			acceptArray.assign(rejectProb);
 		}
 		output = preout.mul(acceptArray);
-		if (maskings != null) {
-			output.muliColumnVector(maskings);
-		}
 		return output;
 	}
 
 	@Override
 	public void doBackward(INDArray epsilon) {
 		INDArray delta = epsilon.mul(acceptArray);
-		if (maskings != null) {
-			delta.muliColumnVector(maskings);
-		}
 		input.backward(delta);
 	}
 

@@ -7,6 +7,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import nn4j.expr.Activate;
 import nn4j.expr.Concat;
 import nn4j.expr.Expr;
+import nn4j.expr.Mask;
 import nn4j.expr.OuterProduct;
 import nn4j.expr.Parameter;
 import nn4j.expr.Parameter.RegType;
@@ -44,11 +45,12 @@ public class Dense extends Vertex{
 			biasValue=Nd4j.zeros(in.shape()[0],1);
 		}
 		Parameter biasParam=new Parameter(biasValue, RegType.None, 0, false);
-		INDArray concatMasking=null;
+		
 		if(maskings!=null){
-			concatMasking=Nd4j.concat(1, maskings,maskings);
+			return new Mask(new Activate(new Mask(new OuterProduct(new Mask(new Concat(in,biasParam),maskings),W),maskings), activation, training), maskings);
+		}else{
+			return new Activate(new OuterProduct(new Concat(in,biasParam),W), activation, training);
 		}
-		return new Activate(maskings,new OuterProduct(maskings,new Concat(concatMasking,in,biasParam),W), activation, training);
 	}
 	@Override
 	public int[] shape() {

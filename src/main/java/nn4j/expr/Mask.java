@@ -2,29 +2,26 @@ package nn4j.expr;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-/**
- * 
- * @author pengjie ren
- *
- */
-public class Neg extends Expr {
-
+public class Mask extends Expr{
+	
+	
 	private Expr input;
+	private INDArray masking;
 
-	public Neg(Expr input) {
+	public Mask(Expr input, INDArray masking) {
 		super(input);
 		this.input = input;
+		this.masking=masking;
 	}
 
 	@Override
 	public INDArray doForward() {
-		output = input.forward().neg();
-		return output;
+		return input.forward().mulColumnVector(masking);
 	}
 
 	@Override
 	public void doBackward(INDArray epsilon) {
-		input.backward(epsilon.neg());
+		input.backward(epsilon.muliColumnVector(masking));
 	}
 
 	@Override
