@@ -19,6 +19,8 @@ public class VocabHolder {
 	private int num;
 	private String unk="<u>";
 	private String pad="<p>";
+	private String left="<l>";
+	private String right="<r>";
 	private INDArray mem;
 	private Map<Integer,INDArray> id2embedding;
 	private Map<String,Integer> word2id;
@@ -36,13 +38,13 @@ public class VocabHolder {
 		return word2id.get(unk);
 	}
 	
-	public INDArray toEmbed(String... words){
-		int[] tomerge=new int[words.length];
-		for(int i=0;i<words.length;i++){
-			tomerge[i]=toID(words[i]);
-		}
-		return mem.getRows(tomerge);
-	}
+//	public INDArray toEmbed(String... words){
+//		int[] tomerge=new int[words.length];
+//		for(int i=0;i<words.length;i++){
+//			tomerge[i]=toID(words[i]);
+//		}
+//		return mem.getRows(tomerge);
+//	}
 	
 	public INDArray toEmbed(String word){
 		if(word2id.containsKey(word))
@@ -78,7 +80,7 @@ public class VocabHolder {
 			if (temp.length == 2) {
 				num=Integer.parseInt(temp[0]);
 				dimension = Integer.parseInt(temp[1]);
-				mem=Nd4j.create(num+2,dimension);
+				mem=Nd4j.create(num+4,dimension);
 				id2embedding=new HashMap<Integer, INDArray>();
 				word2id=new HashMap<String, Integer>();
 				
@@ -89,6 +91,16 @@ public class VocabHolder {
 				
 				word2id.put(pad, id);
 				mem.putRow(id, Nd4j.zeros(new int[]{1, dimension}));
+				id2embedding.put(id, mem.getRow(id));
+				id++;
+				
+				word2id.put(left, id);
+				mem.putRow(id, Nd4j.rand(new int[]{1, dimension},new UniformDistribution(-0.01f, 0.01f)));
+				id2embedding.put(id, mem.getRow(id));
+				id++;
+				
+				word2id.put(right, id);
+				mem.putRow(id, Nd4j.rand(new int[]{1, dimension},new UniformDistribution(-0.01f, 0.01f)));
 				id2embedding.put(id, mem.getRow(id));
 				id++;
 			}

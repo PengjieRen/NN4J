@@ -25,8 +25,8 @@ public class OuterProduct extends Expr {
 
 	@Override
 	public void doBackward(INDArray epsilon) {
-		input2.backward(w1.transpose().mmul(epsilon));
-		input1.backward(epsilon.mmul(w2.transpose()));
+		input2.backward(w1.transpose().dup().mmul(epsilon));
+		input1.backward(epsilon.mmul(w2.transpose().dup()));
 	}
 
 	@Override

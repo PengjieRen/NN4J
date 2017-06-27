@@ -16,12 +16,11 @@ public class Add extends Expr {
 
 	@Override
 	public INDArray doForward() {
-		INDArray[] temp = new INDArray[inputs.size()];
+		inputs.get(0).forward();
+		output=Nd4j.zeros(inputs.get(0).shape());
 		for (int i = 0; i < inputs.size(); i++) {
-			temp[i] = inputs.get(i).forward();
+			output.addi(inputs.get(i).forward());
 		}
-
-		output =Nd4j.getNDArrayFactory().average(temp).muli(inputs.size());
 
 		return output;
 	}

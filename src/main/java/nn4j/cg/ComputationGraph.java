@@ -46,7 +46,7 @@ public abstract class ComputationGraph {
 				}
 				
 				long end=System.currentTimeMillis();
-				System.out.printf("Epoch %s Loss %s Time %ss" + System.lineSeparator(), i, loss, (end-begin)/1000);
+				System.out.printf("Epoch %s Batch %s Loss %s Time %ss" + System.lineSeparator(), i,batch, loss, (end-begin)/1000);
 				if(devData!=null)
 				{
 					test("dev-"+i,devData,devgt);

@@ -31,7 +31,7 @@ public class Dropout extends Expr {
 		if (training) {
 			Nd4j.getExecutioner().exec(new BernoulliDistribution(acceptArray, rejectProb));
 		} else {
-			acceptArray.assign(rejectProb);
+			acceptArray.assign(1.0-rejectProb);
 		}
 		output = preout.mul(acceptArray);
 		return output;

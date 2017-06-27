@@ -39,9 +39,6 @@ public class Concat extends Expr {
 		for (int i = 0; i < inputs.size(); i++) {
 			INDArray delta = epsilon.get(NDArrayIndex.all(), NDArrayIndex.interval(st, st + lengths[i]));
 			st += lengths[i];
-//			if (maskings != null) {
-//				delta = delta.mulColumnVector(maskings.getColumn(i));
-//			}
 			inputs.get(i).backward(delta);
 		}
 	}

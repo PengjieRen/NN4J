@@ -11,6 +11,7 @@ import nn4j.data.Data;
 import nn4j.data.DataLoader;
 import nn4j.expr.Parameter;
 import nn4j.expr.Parameter.RegType;
+import nn4j.expr.Parameter.Updater;
 import nn4j.expr.ParameterManager;
 
 public class XORDataLoader extends DataLoader{
@@ -26,7 +27,7 @@ public class XORDataLoader extends DataLoader{
 	@Override
 	public Batch next() {
 		hasNext=false;
-		Parameter input=new Parameter(Nd4j.create(inputArr),RegType.None,0,false);
+		Parameter input=new Parameter(Nd4j.create(inputArr),RegType.None,0,false,Updater.NONE);
 		INDArray output = Nd4j.create(outputArr);
 		Batch batch=new Batch();
 		batch.batchInputs=new Parameter[1][1];
@@ -51,7 +52,7 @@ public class XORDataLoader extends DataLoader{
 	@Override
 	public List<Data> data() {
 		List<Data> data=new ArrayList<Data>();
-		Parameter input=new Parameter(Nd4j.create(inputArr),RegType.None,0,false);
+		Parameter input=new Parameter(Nd4j.create(inputArr),RegType.None,0,false,Updater.NONE);
 		INDArray output = Nd4j.create(outputArr);
 		Batch batch=new Batch();
 		batch.batchInputs=new Parameter[1][1];

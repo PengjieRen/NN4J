@@ -11,6 +11,7 @@ import nn4j.expr.Mask;
 import nn4j.expr.OuterProduct;
 import nn4j.expr.Parameter;
 import nn4j.expr.Parameter.RegType;
+import nn4j.expr.Parameter.Updater;
 
 public class Dense extends Vertex{
 
@@ -44,7 +45,7 @@ public class Dense extends Vertex{
 		}else{
 			biasValue=Nd4j.zeros(in.shape()[0],1);
 		}
-		Parameter biasParam=new Parameter(biasValue, RegType.None, 0, false);
+		Parameter biasParam=new Parameter(biasValue, RegType.None, 0, false,Updater.NONE);
 		
 		if(maskings!=null){
 			return new Mask(new Activate(new Mask(new OuterProduct(new Mask(new Concat(in,biasParam),maskings),W),maskings), activation, training), maskings);

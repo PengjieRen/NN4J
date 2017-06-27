@@ -19,8 +19,8 @@ import nn4j.expr.DefaultParamInitializer;
 import nn4j.expr.Expr;
 import nn4j.expr.Parameter;
 import nn4j.expr.Parameter.RegType;
+import nn4j.expr.Parameter.Updater;
 import nn4j.expr.ParameterManager;
-import nn4j.expr.ParameterManager.Updater;
 import nn4j.expr.WeightInit;
 import nn4j.loss.Loss;
 
@@ -71,7 +71,7 @@ public class XOR extends ComputationGraph{
 		DataLoader loader=new XORDataLoader(pm);
 		XOR model = new XOR(pm);
 		
-		model.train(loader,loader.data(),null,null,null,1000000);
+		model.train(loader,loader.data(),null,null,null,1000);
 	}
 
 	
